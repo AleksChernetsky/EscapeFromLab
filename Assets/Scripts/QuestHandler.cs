@@ -13,8 +13,6 @@ public class QuestHandler : MonoBehaviour
 
     private bool _gameOver;
 
-    //public bool IsWin { get; private set; }
-
     public static QuestHandler instance;
 
     public event Action OnKeysReceived;
@@ -72,7 +70,6 @@ public class QuestHandler : MonoBehaviour
         if (!_gameOver)
         {
             _gameOver = true;
-            //IsWin = win;
             OnEndGameEvent?.Invoke(win);
             GlobalSoundHandler.instance.OnWinSound();
         }

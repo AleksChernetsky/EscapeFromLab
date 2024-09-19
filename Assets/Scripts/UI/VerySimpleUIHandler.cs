@@ -3,14 +3,16 @@ using UnityEngine.SceneManagement;
 
 public class VerySimpleUIHandler : MonoBehaviour
 {
+    private readonly string MainScene = "MainScene";
+
     [SerializeField] private GameObject _mainMenuCanvas;
     [SerializeField] private GameObject _winCanvas;
     [SerializeField] private GameObject _looseCanvas;
 
     [SerializeField] private Texture2D _cursourSprite;
 
+    private bool _isGameOver;
     private AudioSource _audioSource;
-    private string MainScene = "MainScene";
 
     private void Start()
     {
@@ -21,9 +23,14 @@ public class VerySimpleUIHandler : MonoBehaviour
         QuestHandler.instance.OnEndGameEvent += EndGameState;
         ButtonHandler.OnButtonClick += OnButtonClickAction;
     }
+    private void OnDisable()
+    {
+        PlayerInputService.OnEscapeInput -= Pause;
+        QuestHandler.instance.OnEndGameEvent -= EndGameState;
+        ButtonHandler.OnButtonClick -= OnButtonClickAction;
+    }
     private void CursorStartState()
     {
-        Cursor.lockState = CursorLockMode.Confined;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
         Cursor.SetCursor(_cursourSprite, Vector2.zero, CursorMode.Auto);
@@ -40,6 +47,7 @@ public class VerySimpleUIHandler : MonoBehaviour
                 Time.timeScale = 1f;
                 break;
             case MainMenuButtonType.Restart:
+                _isGameOver = false;
                 SceneManager.LoadScene(MainScene);
                 break;
             case MainMenuButtonType.Exit:
@@ -54,6 +62,7 @@ public class VerySimpleUIHandler : MonoBehaviour
     {
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
+        _isGameOver = true;
 
         if (isWin)
         {
@@ -64,8 +73,11 @@ public class VerySimpleUIHandler : MonoBehaviour
             _looseCanvas.SetActive(true);
         }
     }
-    private void Pause()
+    public void Pause()
     {
+        if (_isGameOver)
+            return;
+
         _mainMenuCanvas.SetActive(true);
         Time.timeScale = 0f;
 

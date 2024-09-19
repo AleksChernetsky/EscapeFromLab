@@ -3,7 +3,7 @@ using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class PlayerInputService : MonoBehaviour, PlayerInput.IPlayerMotionMapActions
+public class PlayerInputService : PlayerInput.IPlayerMotionMapActions
 {
     public PlayerInput PlayerInput { get; private set; }
     public Vector2 MovementInput { get; private set; }
@@ -13,7 +13,7 @@ public class PlayerInputService : MonoBehaviour, PlayerInput.IPlayerMotionMapAct
     public event Action OnInteractInput;
     public static event Action OnEscapeInput;
 
-    private void OnEnable()
+    public void Initialize()
     {
         PlayerInput = new PlayerInput();
         PlayerInput.Enable();
@@ -21,7 +21,7 @@ public class PlayerInputService : MonoBehaviour, PlayerInput.IPlayerMotionMapAct
         PlayerInput.PlayerMotionMap.Enable();
         PlayerInput.PlayerMotionMap.SetCallbacks(this);
     }
-    private void OnDisable()
+    public void DisableInput()
     {
         PlayerInput.PlayerMotionMap.Disable();
         PlayerInput.PlayerMotionMap.RemoveCallbacks(this);
@@ -35,12 +35,12 @@ public class PlayerInputService : MonoBehaviour, PlayerInput.IPlayerMotionMapAct
     // on input click
     public void OnInteract(InputAction.CallbackContext context)
     {
-        if (context.started)
+        if (context.performed)
             OnInteractInput?.Invoke();
     }
     public void OnPause(InputAction.CallbackContext context)
     {
-        if (context.started)
+        if (context.performed)
             OnEscapeInput?.Invoke();
     }
 }

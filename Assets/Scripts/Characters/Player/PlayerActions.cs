@@ -10,7 +10,7 @@ public class PlayerActions : MonoBehaviour
     private float _verticalVelocity = 0;
 
     [Header("Movement sound")]
-    [SerializeField] private AudioClip[] _stepSound;
+    [SerializeField] private AudioClip[] _stepSounds;
     private float _stepInterval = 0.5f;
     private float _stepTimer;
 
@@ -22,20 +22,33 @@ public class PlayerActions : MonoBehaviour
     private CameraHandler _cameraHandler;
     private Inventory _inventory;
 
+    private void OnEnable()
+    {
+        _playerinput = new PlayerInputService();
+
+        _playerinput.Initialize();
+        _playerinput.OnInteractInput += Interact;
+    }
+    private void OnDisable()
+    {
+        _playerinput.DisableInput();
+        _playerinput.OnInteractInput -= Interact;
+
+        QuestHandler.instance.OnEndGameEvent -= OnQuestCompleted;
+    }
     private void Awake()
     {
         _characterController = GetComponent<CharacterController>();
-        _playerinput = GetComponent<PlayerInputService>();
         _audioSource = GetComponent<AudioSource>();
 
         _animationHandler = GetComponentInChildren<AnimationHandler>();
         _cameraHandler = GetComponentInChildren<CameraHandler>();
         _inventory = GetComponentInChildren<Inventory>();
+
     }
     private void Start()
     {
-        _playerinput.OnInteractInput += Interact;
-        QuestHandler.instance.OnEndGameEvent += OnQuestCompleted;
+        QuestHandler.instance.OnEndGameEvent += OnQuestCompleted;        
     }
 
     private void Update()
@@ -95,7 +108,7 @@ public class PlayerActions : MonoBehaviour
             if (_stepTimer >= _stepInterval)
             {
                 _audioSource.pitch = Random.Range(0.95f, 1.1f);
-                _audioSource.PlayOneShot(_stepSound[Random.Range(0, _stepSound.Length)]);
+                _audioSource.PlayOneShot(_stepSounds[Random.Range(0, _stepSounds.Length)]);
                 _stepTimer = 0f;
             }
         }
@@ -106,6 +119,6 @@ public class PlayerActions : MonoBehaviour
     }
     private void OnQuestCompleted(bool isWin)
     {
-        _playerinput.enabled = false;
+        _playerinput.DisableInput();
     }
 }
